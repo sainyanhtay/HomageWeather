@@ -8,7 +8,6 @@ function* retrieveWeather(action) {
       homeServices.retrieveWeatherList,
       action.payload.requestBody,
     );
-    action.payload.handleResponse(weatherResponse);
     yield put({
       type: HomeTypes.RETRIVE_WEATHER_SUCCEED,
       payload: weatherResponse,
