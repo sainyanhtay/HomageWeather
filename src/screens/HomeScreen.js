@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  Animated,
 } from 'react-native';
 import styles from './styles/HomeScreenStyles';
 import {connect} from 'react-redux';
@@ -14,6 +15,10 @@ import Header from '../components/Header';
 import City from '../components/City';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import SearchHeader from '../components/SearchHeader';
+
+const ANIMATION_DURATION = 250;
+
+const itemsToAnimation = 10;
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -25,6 +30,11 @@ class HomeScreen extends Component {
       searchText: '',
       isSearch: false,
     };
+
+    this.animated = [];
+    for (let index = 0; index <= itemsToAnimation; index++) {
+      this.animated.push(new Animated.Value(0));
+    }
   }
 
   componentDidMount() {
@@ -34,6 +44,14 @@ class HomeScreen extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.loading && !this.props.loading) {
       // network call is done
+      this.animated.forEach((animated, index) => {
+        Animated.timing(animated, {
+          toValue: 1,
+          duration: ANIMATION_DURATION,
+          delay: index * ANIMATION_DURATION,
+          useNativeDriver: true,
+        }).start();
+      });
     }
   }
 
@@ -52,9 +70,33 @@ class HomeScreen extends Component {
 
   changeUnit = isCelsius => this.setState({isCelsius});
 
-  renderList = ({item}) => {
+  renderList = ({item, index}) => {
     const {isCelsius} = this.state;
-    return <City item={item} isCelsius={isCelsius} />;
+
+    return (
+      <Animated.View
+        style={
+          index < itemsToAnimation
+            ? [
+                {opacity: this.animated[index]},
+                {
+                  transform: [
+                    {scale: this.animated[index]},
+                    {
+                      rotate: this.animated[index].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['35deg', '0deg'],
+                        extrapolate: 'clamp',
+                      }),
+                    },
+                  ],
+                },
+              ]
+            : null
+        }>
+        <City item={item} isCelsius={isCelsius} />
+      </Animated.View>
+    );
   };
 
   render() {
@@ -73,6 +115,7 @@ class HomeScreen extends Component {
           <SearchHeader
             clearSearch={this.clearSearch}
             onChangeText={this.onChangeSearchText}
+            searchText={searchText}
           />
         )}
         {loading ? (
