@@ -12,6 +12,7 @@ API.interceptors.request.use(
     request.headers = {
       client: 'mobile',
     };
+    console.log('check request', request);
     return request;
   },
   function (error) {
@@ -24,6 +25,7 @@ API.interceptors.response.use(
     return Promise.resolve(response);
   },
   function (error) {
+    console.log('check error', error);
     if (error.response) {
       return Promise.reject(error);
     } else if (error.request) {

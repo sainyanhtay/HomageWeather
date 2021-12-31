@@ -1,8 +1,8 @@
 import {Dimensions} from 'react-native';
 const {width, height} = Dimensions.get('window');
 export const URI = {
-  baseURL: 'api.openweathermap.org/data/2.5',
-  retrieveWeather: '/box/city',
+  baseURL: 'https://api.openweathermap.org/data/2.5',
+  retrieveWeather: '/box/city?bbox=',
 };
 
 export const STORAGE = {
@@ -18,5 +18,5 @@ export const configs = {
     BASIC: 'Basic',
     BEARER: 'Bearer',
   },
-  API_KEY: '11c8936d08951343552afc526a9a3112',
+  API_KEY: '&APPID=11c8936d08951343552afc526a9a3112',
 };
