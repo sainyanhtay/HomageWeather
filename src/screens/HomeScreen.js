@@ -15,6 +15,7 @@ import Header from '../components/Header';
 import City from '../components/City';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import SearchHeader from '../components/SearchHeader';
+import {Actions} from 'react-native-router-flux';
 
 const ANIMATION_DURATION = 250;
 
@@ -60,8 +61,6 @@ class HomeScreen extends Component {
     Alert.alert('Error', response.message);
   };
 
-  leftPressHeader = () => {};
-
   rightPressHeader = () => this.setState({isSearch: true});
 
   onChangeSearchText = searchText => this.setState({searchText});
@@ -69,6 +68,10 @@ class HomeScreen extends Component {
   clearSearch = () => this.setState({isSearch: false, searchText: ''});
 
   changeUnit = isCelsius => this.setState({isCelsius});
+
+  onPressDetail = SELECTED_CITY => {
+    Actions.detail({SELECTED_CITY});
+  };
 
   renderList = ({item, index}) => {
     const {isCelsius} = this.state;
@@ -94,7 +97,11 @@ class HomeScreen extends Component {
               ]
             : null
         }>
-        <City item={item} isCelsius={isCelsius} />
+        <City
+          item={item}
+          isCelsius={isCelsius}
+          onPressDetail={item => this.onPressDetail(item)}
+        />
       </Animated.View>
     );
   };
@@ -104,20 +111,18 @@ class HomeScreen extends Component {
     const {loading, weatherList} = this.props;
 
     return (
-      <SafeAreaView style={styles.container}>
-        {!isSearch ? (
-          <Header
-            title={'cliMate'}
-            onLeftPress={this.leftPressHeader}
-            onRightPress={this.rightPressHeader}
-          />
-        ) : (
-          <SearchHeader
-            clearSearch={this.clearSearch}
-            onChangeText={this.onChangeSearchText}
-            searchText={searchText}
-          />
-        )}
+      <View style={styles.container}>
+        <SafeAreaView>
+          {!isSearch ? (
+            <Header title={'cliMate'} onRightPress={this.rightPressHeader} />
+          ) : (
+            <SearchHeader
+              clearSearch={this.clearSearch}
+              onChangeText={this.onChangeSearchText}
+              searchText={searchText}
+            />
+          )}
+        </SafeAreaView>
         {loading ? (
           <ActivityIndicator size="small" style={styles.loading} />
         ) : (
@@ -153,7 +158,7 @@ class HomeScreen extends Component {
               }}>{`\u00B0C`}</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }

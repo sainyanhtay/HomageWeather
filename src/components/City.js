@@ -64,9 +64,9 @@ const renderWeatherSign = item => {
     );
 };
 
-const City = ({item, isCelsius}) => {
+const City = ({item, isCelsius, onPressDetail}) => {
   return (
-    <TouchableOpacity style={styles.row}>
+    <TouchableOpacity style={styles.row} onPress={() => onPressDetail(item)}>
       <Text style={styles.temp}>{`${
         isCelsius
           ? item.Temperature.Metric.Value.toFixed()
