@@ -14,6 +14,8 @@ const ApplicationStyles = {
 
     allCenter: {justifyContent: 'center', alignItems: 'center'},
 
+    loading: {flex: 1, justifyContent: 'center', alignSelf: 'center'},
+
     backgroundImage: {
       flex: 1,
       width: null,

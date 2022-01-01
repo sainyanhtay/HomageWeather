@@ -3,6 +3,7 @@ const {width, height} = Dimensions.get('window');
 export const URI = {
   baseURL: 'https://dataservice.accuweather.com',
   retrieveWeather: '/currentconditions/v1/topcities/150',
+  retrieveWeatherDetail: '/currentconditions/v1/',
 };
 
 export const STORAGE = {

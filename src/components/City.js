@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     padding: Metrics.paddingMediumXX,
     alignItems: 'center',
   },
-  temp: {fontSize: Metrics.fonts.large, flex: 0.3},
+  temp: {fontSize: Metrics.fonts.large, flex: 0.3, color: Colors.black},
   nameContainer: {paddingHorizontal: Metrics.paddingMedium, flex: 0.5},
-  name: {fontWeight: 'bold'},
+  name: {fontWeight: 'bold', color: Colors.black},
   signContainer: {flex: 0.2, borderRadius: Metrics.radiumLarge},
   signIcon: {
     alignSelf: 'center',

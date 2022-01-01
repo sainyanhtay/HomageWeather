@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import styles from './styles/HomeScreenStyles';
 import {connect} from 'react-redux';
-import {retrieveWeather} from '../modules/home/HomeActions';
+import {retrieveWeather} from '../modules/weather/WeatherActions';
 import Header from '../components/Header';
 import City from '../components/City';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -128,7 +128,7 @@ class HomeScreen extends Component {
         ) : (
           <FlatList
             keyExtractor={(item, index) => index.toString()}
-            data={weatherList.filter(
+            data={weatherList?.filter(
               e =>
                 e.EnglishName.toLowerCase().includes(
                   searchText.toLowerCase(),
@@ -164,7 +164,7 @@ class HomeScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  const {loading, weatherList} = state.home;
+  const {loading, weatherList} = state.weather;
   return {loading, weatherList};
 };
 

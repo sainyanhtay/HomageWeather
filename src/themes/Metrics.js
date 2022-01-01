@@ -96,6 +96,7 @@ const metrics = {
   fonts: {
     title: 20,
     large: 50,
+    extraL: 75,
   },
 };
 

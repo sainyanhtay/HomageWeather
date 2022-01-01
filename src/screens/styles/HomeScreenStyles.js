@@ -6,7 +6,6 @@ let {width, height} = Dimensions.get('window');
 
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
-  loading: {flex: 1, justifyContent: 'center', alignSelf: 'center'},
   unitContainer: {
     position: 'absolute',
     bottom: Metrics.marginLargeX4,

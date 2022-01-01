@@ -1,6 +1,6 @@
 import {fork} from 'redux-saga/effects';
-import watchHomeSaga from '../modules/home/HomeSaga';
+import watchWeatherSaga from '../modules/weather/WeatherSaga';
 
 export default function* rootSaga() {
-  yield fork(watchHomeSaga);
+  yield fork(watchWeatherSaga);
 }

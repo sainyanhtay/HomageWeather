@@ -1,6 +1,6 @@
 import {combineReducers} from 'redux';
-import home from '../modules/home/HomeReducer';
+import weather from '../modules/weather/WeatherReducer';
 
 export default combineReducers({
-  home,
+  weather,
 });
