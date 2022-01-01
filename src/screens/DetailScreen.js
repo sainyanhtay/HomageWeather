@@ -9,6 +9,12 @@ import {Colors, Images, Metrics} from '../themes';
 import Carousel from 'react-native-snap-carousel';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+
+const config = {
+  velocityThreshold: 0.3,
+  directionalOffsetThreshold: 80,
+};
 
 class DetailScreen extends Component {
   constructor(props) {
@@ -20,12 +26,13 @@ class DetailScreen extends Component {
       selectedCity: props.SELECTED_CITY,
       horizontalList: [{}, {}],
     };
-    console.log('selected in detail ', props.SELECTED_CITY);
   }
 
   componentDidMount() {
-    this.props.retrieveWeatherDetail(this.props.SELECTED_CITY.Key);
+    this.retrieveWeatherDetail(this.props.SELECTED_CITY.Key);
   }
+
+  retrieveWeatherDetail = key => this.props.retrieveWeatherDetail(key);
 
   leftPressHeader = () => Actions.pop();
 
@@ -46,7 +53,9 @@ class DetailScreen extends Component {
   };
 
   _renderHorizontal = ({item, index}) => {
-    const {SELECTED_CITY, weatherDetail} = this.props;
+    const {weatherDetail} = this.props;
+    const {selectedCity} = this.state;
+
     // render lists
     if (index == 1) {
       return (
@@ -63,19 +72,19 @@ class DetailScreen extends Component {
     else
       return (
         <View style={{flex: 1, alignItems: 'center'}}>
-          {this.renderWeatherSign(SELECTED_CITY.WeatherText)}
+          {this.renderWeatherSign(selectedCity.WeatherText)}
           <Text
             style={
               styles.temp
-            }>{`${SELECTED_CITY.Temperature.Imperial.Value.toFixed()}\u00B0F`}</Text>
+            }>{`${selectedCity.Temperature.Imperial.Value.toFixed()}\u00B0F`}</Text>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>{SELECTED_CITY.WeatherText}</Text>
+            <Text style={styles.text}>{selectedCity.WeatherText}</Text>
             <Text>
               <Text
                 style={
                   styles.bold
-                }>{`${SELECTED_CITY.Temperature.Imperial.Value.toFixed()}\u00B0`}</Text>
-              {` ${SELECTED_CITY.Temperature.Metric.Value.toFixed()}\u00B0`}
+                }>{`${selectedCity.Temperature.Imperial.Value.toFixed()}\u00B0`}</Text>
+              {` ${selectedCity.Temperature.Metric.Value.toFixed()}\u00B0`}
             </Text>
           </View>
           <View style={styles.bottomContainer}>
@@ -151,6 +160,40 @@ class DetailScreen extends Component {
       return this.weatherIcon(MaterialCommunityIcons, 'weather-sunset-down');
   };
 
+  onSwipe(gestureName, gestureState) {
+    const {SWIPE_UP, SWIPE_DOWN, SWIPE_LEFT, SWIPE_RIGHT} = swipeDirections;
+    const {weatherList, loadingDetail} = this.props;
+    const {selectedCity} = this.state;
+
+    if (!loadingDetail) {
+      let selectedCityIndex = weatherList.findIndex(
+        item => item == selectedCity,
+      );
+
+      switch (gestureName) {
+        case SWIPE_UP:
+          if (selectedCityIndex < weatherList.length - 1)
+            this.setState({
+              selectedCity: weatherList[selectedCityIndex + 1],
+            });
+
+          this.retrieveWeatherDetail(weatherList[selectedCityIndex + 1].Key);
+          break;
+        case SWIPE_DOWN:
+          if (selectedCityIndex > 0)
+            this.setState({
+              selectedCity: weatherList[selectedCityIndex - 1],
+            });
+          this.retrieveWeatherDetail(weatherList[selectedCityIndex - 1].Key);
+          break;
+        case SWIPE_LEFT:
+          break;
+        case SWIPE_RIGHT:
+          break;
+      }
+    }
+  }
+
   render() {
     const {selectedCity, horizontalList} = this.state;
     const {loadingDetail, weatherDetail} = this.props;
@@ -158,7 +201,10 @@ class DetailScreen extends Component {
     console.log('check detail ', weatherDetail);
 
     return (
-      <View style={styles.container}>
+      <GestureRecognizer
+        onSwipe={(direction, state) => this.onSwipe(direction, state)}
+        config={config}
+        style={styles.container}>
         <DetailHeader title={'cliMate'} onLeftPress={this.leftPressHeader} />
         <View style={[styles.imageContainer, styles.elevationCardStyle]}>
           <Image style={[styles.image]} source={Images.ny}></Image>
@@ -173,25 +219,23 @@ class DetailScreen extends Component {
               ref={c => {
                 this._carousel = c;
               }}
-              // onMomentumScrollEnd={() => this.transactionList(selectedCardIndex)}
-              // onScrollIndexChanged={i => this.onCardChange(i)}
               data={horizontalList}
               removeClippedSubviews={false}
-              // scrollEnabled={!transactionLoading}
+              extraData={this.state}
               renderItem={this._renderHorizontal}
               sliderWidth={Metrics.screenWidth}
               itemWidth={Metrics.screenWidth * 0.8}
             />
           </View>
         )}
-      </View>
+      </GestureRecognizer>
     );
   }
 }
 
 const mapStateToProps = state => {
-  const {loadingDetail, weatherDetail} = state.weather;
-  return {loadingDetail, weatherDetail};
+  const {loadingDetail, weatherDetail, weatherList} = state.weather;
+  return {loadingDetail, weatherDetail, weatherList};
 };
 
 DetailScreen = connect(mapStateToProps, {
