@@ -6,6 +6,8 @@ I created the project with the command `npx react-native init homage_weather` by
 
 After that, I added redux, redux-saga for the application middleware, Axios for the network call, and react-native router-flux for the navigations.
 
+I was used to retrieve the weather data from https://developer.accuweather.com/.
+
 To run:
 
 1. Install the libraries with `npm install`
