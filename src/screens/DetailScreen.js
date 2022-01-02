@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, ActivityIndicator, Image, FlatList} from 'react-native';
+import {View, Text, ActivityIndicator, FlatList, Alert} from 'react-native';
 import styles from './styles/DetailScreenStyles';
 import {connect} from 'react-redux';
 import {retrieveWeatherDetail} from '../modules/weather/WeatherActions';
@@ -9,7 +9,8 @@ import {Colors, Images, Metrics} from '../themes';
 import Carousel from 'react-native-snap-carousel';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-detect';
+import * as Animatable from 'react-native-animatable';
 
 const config = {
   velocityThreshold: 0.3,
@@ -25,6 +26,7 @@ class DetailScreen extends Component {
       isCelsius: false,
       selectedCity: props.SELECTED_CITY,
       horizontalList: [{}, {}],
+      isSwiped: false,
     };
   }
 
@@ -32,7 +34,13 @@ class DetailScreen extends Component {
     this.retrieveWeatherDetail(this.props.SELECTED_CITY.Key);
   }
 
-  retrieveWeatherDetail = key => this.props.retrieveWeatherDetail(key);
+  retrieveWeatherDetail = key =>
+    this.props.retrieveWeatherDetail(key, this.responseHandler);
+
+  responseHandler = response => {
+    this.setState({isError: true, errMsg: response.message});
+    Alert.alert('Error', response.message);
+  };
 
   leftPressHeader = () => Actions.pop();
 
@@ -172,30 +180,49 @@ class DetailScreen extends Component {
 
       switch (gestureName) {
         case SWIPE_UP:
-          if (selectedCityIndex < weatherList.length - 1)
+          if (selectedCityIndex < weatherList.length - 1) {
             this.setState({
               selectedCity: weatherList[selectedCityIndex + 1],
+              isSwiped: true,
             });
 
-          this.retrieveWeatherDetail(weatherList[selectedCityIndex + 1].Key);
+            this._swipeViewRef?.fadeOutUpBig();
+            this._ImageViewRef?.zoomOut();
+
+            this.retrieveWeatherDetail(weatherList[selectedCityIndex + 1].Key);
+
+            setTimeout(() => {
+              // for animation duration
+              this._swipeViewRef?.fadeInUpBig();
+              this._ImageViewRef?.zoomIn();
+            }, 500);
+          }
           break;
         case SWIPE_DOWN:
-          if (selectedCityIndex > 0)
+          if (selectedCityIndex > 0) {
             this.setState({
               selectedCity: weatherList[selectedCityIndex - 1],
+              isSwiped: true,
             });
-          this.retrieveWeatherDetail(weatherList[selectedCityIndex - 1].Key);
-          break;
-        case SWIPE_LEFT:
-          break;
-        case SWIPE_RIGHT:
+
+            this._swipeViewRef?.fadeOutDownBig();
+            this._ImageViewRef?.zoomOut();
+
+            this.retrieveWeatherDetail(weatherList[selectedCityIndex - 1].Key);
+
+            setTimeout(() => {
+              // for animation duration
+              this._swipeViewRef?.fadeInDownBig();
+              this._ImageViewRef?.zoomIn();
+            }, 500);
+          }
           break;
       }
     }
   }
 
   render() {
-    const {selectedCity, horizontalList} = this.state;
+    const {selectedCity, horizontalList, isSwiped} = this.state;
     const {loadingDetail, weatherDetail} = this.props;
 
     console.log('check detail ', weatherDetail);
@@ -207,12 +234,24 @@ class DetailScreen extends Component {
         style={styles.container}>
         <DetailHeader title={'cliMate'} onLeftPress={this.leftPressHeader} />
         <View style={[styles.imageContainer, styles.elevationCardStyle]}>
-          <Image style={[styles.image]} source={Images.ny}></Image>
+          {loadingDetail && !isSwiped ? (
+            <ActivityIndicator size="small" style={styles.image} />
+          ) : (
+            <Animatable.Image
+              style={[styles.image]}
+              source={Images.ny}
+              animation="zoomIn"
+              ref={ref => (ref ? (this._ImageViewRef = ref) : null)}
+            />
+          )}
         </View>
-        {loadingDetail ? (
+        {loadingDetail && !isSwiped ? (
           <ActivityIndicator size="small" style={styles.loading} />
         ) : (
-          <View style={{flex: 1}}>
+          <Animatable.View
+            animation="fadeInUpBig"
+            style={{flex: 1}}
+            ref={ref => (ref ? (this._swipeViewRef = ref) : null)}>
             <Text style={styles.name}>{selectedCity.EnglishName}</Text>
             <Text style={styles.name}>{selectedCity.Country.EnglishName}</Text>
             <Carousel
@@ -224,9 +263,9 @@ class DetailScreen extends Component {
               extraData={this.state}
               renderItem={this._renderHorizontal}
               sliderWidth={Metrics.screenWidth}
-              itemWidth={Metrics.screenWidth * 0.8}
+              itemWidth={Metrics.screenWidth * 0.85}
             />
-          </View>
+          </Animatable.View>
         )}
       </GestureRecognizer>
     );
